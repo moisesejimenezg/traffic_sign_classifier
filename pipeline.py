@@ -1,9 +1,18 @@
 # Load pickled data
 import pickle
+import sys
 
 training_file = 'train.p'
 validation_file = 'test.p'
 testing_file = 'valid.p'
+
+GRAYSCALE_IDX = 1
+
+print(sys.argv)
+grayscale = bool(sys.argv[GRAYSCALE_IDX])
+
+print("Pipeline running with:")
+print("Grayscale transform: " + str(grayscale))
 
 with open(training_file, mode='rb') as f:
     train = pickle.load(f)
@@ -67,9 +76,13 @@ def LeNet(x):
     # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
     mu = 0
     sigma = 0.1
+    depth = 3
+    if grayscale:
+        x = tf.image.rgb_to_grayscale(x)
+        depth = 1
     
     # Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
-    W_1 = tf.Variable(tf.truncated_normal(shape=(5, 5, 3, 6), mean=mu, stddev=sigma))
+    W_1 = tf.Variable(tf.truncated_normal(shape=(5, 5, depth, 6), mean=mu, stddev=sigma))
     #B_1 = tf.Variable(tf.truncated_normal(shape=(1, 28, 28, 6), mean=mu, stddev=sigma))
     B_1 = tf.Variable(tf.zeros(shape=(1, 28, 28, 6)))
     strides = [1, 1, 1, 1]
