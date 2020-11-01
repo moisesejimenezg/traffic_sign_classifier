@@ -8,14 +8,17 @@ testing_file = 'valid.p'
 
 GRAYSCALE_IDX = 1
 NORMALIZE_IDX = 2
+DROP_OUTS_IDX = 3
 
 print(sys.argv)
 grayscale = bool(sys.argv[GRAYSCALE_IDX])
 normalize = bool(sys.argv[NORMALIZE_IDX])
+drop_outs = bool(sys.argv[DROP_OUTS_IDX])
 
 print("Pipeline running with:")
 print("Grayscale transform: " + str(grayscale))
-print("Nomalize grayscale transform: " + str(normalize))
+print("Normalize grayscale transform: " + str(normalize))
+print("Apply two dropouts: " + str(drop_outs))
 
 with open(training_file, mode='rb') as f:
     train = pickle.load(f)
@@ -108,6 +111,7 @@ def LeNet(x):
 
     # Activation.
     layer_1 = tf.nn.relu(layer_1)
+    layer_1 = tf.nn.dropout(layer_1, high_keep_prob)
 
     # Pooling. Input = 28x28x6. Output = 14x14x6.
     k = [1, 2, 2, 1]
@@ -133,6 +137,7 @@ def LeNet(x):
 
     # Flatten. Input = 5x5x16. Output = 400.
     fc = flatten(layer_2)
+    fc = tf.nn.dropout(fc, low_keep_prob)
     
     # Layer 3: Fully Connected. Input = 400. Output = 120.
     W_3 = tf.Variable(tf.truncated_normal(shape=(400, 120), mean=mu, stddev=sigma))
@@ -149,6 +154,7 @@ def LeNet(x):
     
     # Activation.
     layer_4 = tf.nn.relu(layer_4)
+    layer_4 = tf.nn.dropout(layer_4, low_keep_prob)
 
     # Layer 5: Fully Connected. Input = 84. Output = 43.
     W_5 = tf.Variable(tf.truncated_normal(shape=(84, 43), mean=mu, stddev=sigma))
@@ -160,6 +166,8 @@ def LeNet(x):
 ### Setup CNN
 x = tf.placeholder(tf.float32, (None, 32, 32, 3))
 y = tf.placeholder(tf.int32, (None))
+low_keep_prob = tf.placeholder(tf.float32)
+high_keep_prob = tf.placeholder(tf.float32)
 one_shot_y = tf.one_hot(y, 43)
 
 learning_rate = 0.001
@@ -181,11 +189,16 @@ def evaluate(X_data, y_data):
     sess = tf.get_default_session()
     for offset in range(0, num_examples, BATCH_SIZE):
         batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
-        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y})
+        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, low_keep_prob: 1, high_keep_prob: 1})
         total_accuracy += (accuracy * len(batch_x))
     return total_accuracy / num_examples
 
 ### Train
+low_keep_prob_v = 1
+high_keep_prob_v = 1
+if drop_outs:
+    low_keep_prob_v = 0.6
+    high_keep_prob_v = 0.7
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
@@ -198,7 +211,7 @@ with tf.Session() as sess:
         for offset in range(0, num_examples, BATCH_SIZE):
             end = offset + BATCH_SIZE
             batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y})
+            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, low_keep_prob: low_keep_prob_v, high_keep_prob: high_keep_prob_v})
             
         validation_accuracy = evaluate(X_valid, y_valid)
         print("EPOCH {} ...".format(i+1))
