@@ -7,12 +7,15 @@ validation_file = 'test.p'
 testing_file = 'valid.p'
 
 GRAYSCALE_IDX = 1
+NORMALIZE_IDX = 2
 
 print(sys.argv)
 grayscale = bool(sys.argv[GRAYSCALE_IDX])
+normalize = bool(sys.argv[NORMALIZE_IDX])
 
 print("Pipeline running with:")
 print("Grayscale transform: " + str(grayscale))
+print("Nomalize grayscale transform: " + str(normalize))
 
 with open(training_file, mode='rb') as f:
     train = pickle.load(f)
@@ -66,13 +69,30 @@ import tensorflow as tf
 from sklearn.utils import shuffle
 X_train, y_train = shuffle(X_train, y_train)
 
+### Normalize grayscale
+def normalize_grayscale(image_data: tf.Tensor):
+    """
+    Normalize the image data with Min-Max scaling to a range of [0.1, 0.9]
+    :param image_data: The image data to be normalized
+    :return: Normalized image data
+    """
+    max_value = 0.9
+    min_value = 0.1
+    X_std = (image_data - tf.reduce_min(image_data)) / (tf.reduce_max(image_data) - tf.reduce_min(image_data))
+    X_scaled = X_std * (max_value - min_value) + min_value
+    return X_scaled
+
+# X_train = np.array([normalize_grayscale(x) for x in X_train])
+# X_test = np.array([normalize_grayscale(x) for x in X_test])
+# X_valid = np.array([normalize_grayscale(x) for x in X_valid])
+
 ### Setup
 EPOCHS = 10
 BATCH_SIZE = 128
 
 from tensorflow.contrib.layers import flatten
 
-def LeNet(x):    
+def LeNet(x):
     # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
     mu = 0
     sigma = 0.1
@@ -80,6 +100,8 @@ def LeNet(x):
     if grayscale:
         x = tf.image.rgb_to_grayscale(x)
         depth = 1
+        if normalize:
+            x = normalize_grayscale(x)
     
     # Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
     W_1 = tf.Variable(tf.truncated_normal(shape=(5, 5, depth, 6), mean=mu, stddev=sigma))
