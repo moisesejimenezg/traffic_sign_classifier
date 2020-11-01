@@ -61,9 +61,9 @@ import numpy as np
 index = random.randint(0, len(X_train))
 image = X_train[index].squeeze()
 
-plt.imshow(image)
-plt.show()
-print(y_train[index])
+# plt.imshow(image)
+# plt.show()
+# print(y_train[index])
 
 ### Import Tensorflow
 import tensorflow as tf
@@ -143,18 +143,22 @@ def LeNet(x):
     padding = 'VALID'
     layer_2 = tf.nn.max_pool(layer_2, k, strides, padding)
 
+    # Layer 2_1: Convolutional. Output = 1x1x412.
+    layer_2_1 = convolutional_network(layer_2, 5, 16, 5, 412)
+
     # Flatten. Input = 5x5x16. Output = 400.
-    fc = flatten(layer_2)
-    fc = tf.nn.dropout(fc, low_keep_prob)
-    
-    # Layer 3: Fully Connected. Input = 400. Output = 120.
-    layer_3 = linear_network(fc, 400, 120)
+    fc = flatten(layer_2_1)
+    fc = tf.nn.dropout(fc, high_keep_prob)
+
+    # Layer 3: Fully Connected. Input = 412. Output = 122.
+    layer_3 = linear_network(fc, 412, 122)
 
     # Activation.
     layer_3 = tf.nn.relu(layer_3)
+    layer_3 = tf.nn.dropout(layer_3, low_keep_prob)
 
     # Layer 4: Fully Connected. Input = 120. Output = 84.
-    layer_4 = linear_network(layer_3, 120, 84)
+    layer_4 = linear_network(layer_3, 122, 84)
 
     # Activation.
     layer_4 = tf.nn.relu(layer_4)
