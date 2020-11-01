@@ -86,15 +86,31 @@ def normalize_grayscale(image_data: tf.Tensor):
     return X_scaled
 
 ### Setup
-EPOCHS = 10
-BATCH_SIZE = 128
+EPOCHS = 20
+BATCH_SIZE = 256
+mu = 0
+sigma = 0.1
+
+def linear_network(x_in, in_dim, out_dim, mu_in = mu, sigma_in = sigma):
+    W = tf.Variable(tf.truncated_normal(shape=(in_dim, out_dim), mean=mu_in, stddev=sigma_in))
+    B = tf.Variable(tf.zeros(shape=(1, out_dim)))
+    y_out = tf.matmul(x_in, W) + B
+    return y_out
+
+
+def convolutional_network(x_in, in_h_w, in_depth, filter_h_w, out_depth):
+    out_h_w = (in_h_w - filter_h_w) + 1 # no padding, stride = 1
+    W = tf.Variable(tf.truncated_normal(shape=(filter_h_w, filter_h_w, in_depth, out_depth), mean=mu, stddev=sigma))
+    B = tf.Variable(tf.zeros(shape=(1, out_h_w, out_h_w, out_depth)))
+    strides = [1, 1, 1, 1]
+    padding = 'VALID'
+    y_out = tf.nn.conv2d(x_in, W, strides=strides, padding=padding) + B
+    return y_out
 
 from tensorflow.contrib.layers import flatten
 
 def LeNet(x):
     # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
-    mu = 0
-    sigma = 0.1
     depth = 3
     if grayscale:
         x = tf.image.rgb_to_grayscale(x)
@@ -103,11 +119,7 @@ def LeNet(x):
             x = normalize_grayscale(x)
 
     # Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
-    W_1 = tf.Variable(tf.truncated_normal(shape=(5, 5, depth, 6), mean=mu, stddev=sigma))
-    B_1 = tf.Variable(tf.zeros(shape=(1, 28, 28, 6)))
-    strides = [1, 1, 1, 1]
-    padding = 'VALID'
-    layer_1 = tf.nn.conv2d(x, W_1, strides=strides, padding=padding) + B_1
+    layer_1 = convolutional_network(x, 32, 1, 5, 6)
 
     # Activation.
     layer_1 = tf.nn.relu(layer_1)
@@ -120,12 +132,8 @@ def LeNet(x):
     layer_1 = tf.nn.max_pool(layer_1, k, strides, padding)
 
     # Layer 2: Convolutional. Output = 10x10x16.
-    W_2 = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean=mu, stddev=sigma))
-    B_2 = tf.Variable(tf.zeros(shape=(1, 10, 10, 16)))
-    strides = [1, 1, 1, 1]
-    padding = 'VALID'
-    layer_2 = tf.nn.conv2d(layer_1, W_2, strides=strides, padding=padding) + B_2
-    
+    layer_2 = convolutional_network(layer_1, 14, 6, 5, 16)
+
     # Activation.
     layer_2 = tf.nn.relu(layer_2)
 
@@ -140,27 +148,21 @@ def LeNet(x):
     fc = tf.nn.dropout(fc, low_keep_prob)
     
     # Layer 3: Fully Connected. Input = 400. Output = 120.
-    W_3 = tf.Variable(tf.truncated_normal(shape=(400, 120), mean=mu, stddev=sigma))
-    B_3 = tf.Variable(tf.zeros(shape=(1, 120)))
-    layer_3 = tf.matmul(fc, W_3) + B_3
-    
+    layer_3 = linear_network(fc, 400, 120)
+
     # Activation.
     layer_3 = tf.nn.relu(layer_3)
 
     # Layer 4: Fully Connected. Input = 120. Output = 84.
-    W_4 = tf.Variable(tf.truncated_normal(shape=(120, 84), mean=mu, stddev=sigma))
-    B_4 = tf.Variable(tf.zeros(shape=(1, 84)))
-    layer_4 = tf.matmul(layer_3, W_4) + B_4
-    
+    layer_4 = linear_network(layer_3, 120, 84)
+
     # Activation.
     layer_4 = tf.nn.relu(layer_4)
     layer_4 = tf.nn.dropout(layer_4, low_keep_prob)
 
     # Layer 5: Fully Connected. Input = 84. Output = 43.
-    W_5 = tf.Variable(tf.truncated_normal(shape=(84, 43), mean=mu, stddev=sigma))
-    B_5 = tf.Variable(tf.zeros(shape=(1, 43)))
-    logits = tf.matmul(layer_4, W_5) + B_5
-    
+    logits = linear_network(layer_4, 84, 43)
+
     return logits
 
 ### Setup CNN
