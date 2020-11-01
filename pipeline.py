@@ -82,10 +82,6 @@ def normalize_grayscale(image_data: tf.Tensor):
     X_scaled = X_std * (max_value - min_value) + min_value
     return X_scaled
 
-# X_train = np.array([normalize_grayscale(x) for x in X_train])
-# X_test = np.array([normalize_grayscale(x) for x in X_test])
-# X_valid = np.array([normalize_grayscale(x) for x in X_valid])
-
 ### Setup
 EPOCHS = 10
 BATCH_SIZE = 128
@@ -102,10 +98,9 @@ def LeNet(x):
         depth = 1
         if normalize:
             x = normalize_grayscale(x)
-    
+
     # Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
     W_1 = tf.Variable(tf.truncated_normal(shape=(5, 5, depth, 6), mean=mu, stddev=sigma))
-    #B_1 = tf.Variable(tf.truncated_normal(shape=(1, 28, 28, 6), mean=mu, stddev=sigma))
     B_1 = tf.Variable(tf.zeros(shape=(1, 28, 28, 6)))
     strides = [1, 1, 1, 1]
     padding = 'VALID'
@@ -122,7 +117,6 @@ def LeNet(x):
 
     # Layer 2: Convolutional. Output = 10x10x16.
     W_2 = tf.Variable(tf.truncated_normal(shape=(5, 5, 6, 16), mean=mu, stddev=sigma))
-    #B_2 = tf.Variable(tf.truncated_normal(shape=(1, 10, 10, 16), mean=mu, stddev=sigma))
     B_2 = tf.Variable(tf.zeros(shape=(1, 10, 10, 16)))
     strides = [1, 1, 1, 1]
     padding = 'VALID'
@@ -142,7 +136,6 @@ def LeNet(x):
     
     # Layer 3: Fully Connected. Input = 400. Output = 120.
     W_3 = tf.Variable(tf.truncated_normal(shape=(400, 120), mean=mu, stddev=sigma))
-    #B_3 = tf.Variable(tf.truncated_normal(shape=(1, 120), mean=mu, stddev=sigma))
     B_3 = tf.Variable(tf.zeros(shape=(1, 120)))
     layer_3 = tf.matmul(fc, W_3) + B_3
     
@@ -151,7 +144,6 @@ def LeNet(x):
 
     # Layer 4: Fully Connected. Input = 120. Output = 84.
     W_4 = tf.Variable(tf.truncated_normal(shape=(120, 84), mean=mu, stddev=sigma))
-    #B_4 = tf.Variable(tf.truncated_normal(shape=(1, 84), mean=mu, stddev=sigma))
     B_4 = tf.Variable(tf.zeros(shape=(1, 84)))
     layer_4 = tf.matmul(layer_3, W_4) + B_4
     
@@ -160,7 +152,6 @@ def LeNet(x):
 
     # Layer 5: Fully Connected. Input = 84. Output = 43.
     W_5 = tf.Variable(tf.truncated_normal(shape=(84, 43), mean=mu, stddev=sigma))
-    #B_5 = tf.Variable(tf.truncated_normal(shape=(1, 43), mean=mu, stddev=sigma))
     B_5 = tf.Variable(tf.zeros(shape=(1, 43)))
     logits = tf.matmul(layer_4, W_5) + B_5
     
