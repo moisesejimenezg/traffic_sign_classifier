@@ -9,11 +9,17 @@ testing_file = 'valid.p'
 GRAYSCALE_IDX = 1
 NORMALIZE_IDX = 2
 DROP_OUTS_IDX = 3
+DEBUG_MODE = True
 
 print(sys.argv)
-grayscale = bool(sys.argv[GRAYSCALE_IDX])
-normalize = bool(sys.argv[NORMALIZE_IDX])
-drop_outs = bool(sys.argv[DROP_OUTS_IDX])
+if not DEBUG_MODE:
+    grayscale = bool(sys.argv[GRAYSCALE_IDX])
+    normalize = bool(sys.argv[NORMALIZE_IDX])
+    drop_outs = bool(sys.argv[DROP_OUTS_IDX])
+else:
+    grayscale = True
+    normalize = True
+    drop_outs = True
 
 print("Pipeline running with:")
 print("Grayscale transform: " + str(grayscale))
@@ -66,7 +72,8 @@ image = X_train[index].squeeze()
 # print(y_train[index])
 
 ### Import Tensorflow
-import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 
 ### Shuffle the data
 from sklearn.utils import shuffle
@@ -107,7 +114,7 @@ def convolutional_network(x_in, in_h_w, in_depth, filter_h_w, out_depth):
     y_out = tf.nn.conv2d(x_in, W, strides=strides, padding=padding) + B
     return y_out
 
-from tensorflow.contrib.layers import flatten
+from tensorflow.compat.v1.layers import flatten
 
 def LeNet(x):
     # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
