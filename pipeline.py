@@ -64,12 +64,14 @@ import matplotlib.pyplot as plt
 import random
 import numpy as np
 
-index = random.randint(0, len(X_train))
-image = X_train[index].squeeze()
+from data_visualizer import DataVisualizer
 
-# plt.imshow(image)
-# plt.show()
-# print(y_train[index])
+y_joint = y_test
+y_joint = np.concatenate((y_joint, y_valid))
+y_joint = np.concatenate((y_joint, y_train))
+
+visualizer = DataVisualizer(X_test, y_joint, n_classes)
+visualizer.visualize()
 
 ### Import Tensorflow
 import tensorflow.compat.v1 as tf
