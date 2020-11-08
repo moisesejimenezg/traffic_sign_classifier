@@ -9,22 +9,27 @@ testing_file = 'valid.p'
 GRAYSCALE_IDX = 1
 NORMALIZE_IDX = 2
 DROP_OUTS_IDX = 3
-DEBUG_MODE = True
+VISUALIZE_IDX = 4
+DEBUG_MODE = False
 
 print(sys.argv)
 if not DEBUG_MODE:
-    grayscale = bool(sys.argv[GRAYSCALE_IDX])
-    normalize = bool(sys.argv[NORMALIZE_IDX])
-    drop_outs = bool(sys.argv[DROP_OUTS_IDX])
+    grayscale = sys.argv[GRAYSCALE_IDX] == "True"
+    normalize = sys.argv[NORMALIZE_IDX] == "True"
+    drop_outs = sys.argv[DROP_OUTS_IDX] == "True"
+    visualize = sys.argv[VISUALIZE_IDX] == "True"
 else:
+    print("DEBUG MODE")
     grayscale = True
     normalize = True
     drop_outs = True
+    visualize = True
 
 print("Pipeline running with:")
 print("Grayscale transform: " + str(grayscale))
 print("Normalize grayscale transform: " + str(normalize))
 print("Apply two dropouts: " + str(drop_outs))
+print("Visualize: " + str(visualize))
 
 with open(training_file, mode='rb') as f:
     train = pickle.load(f)
@@ -64,14 +69,12 @@ import matplotlib.pyplot as plt
 import random
 import numpy as np
 
-from data_visualizer import DataVisualizer
+if visualize:
+    from data_visualizer import DataVisualizer
 
-y_joint = y_test
-y_joint = np.concatenate((y_joint, y_valid))
-y_joint = np.concatenate((y_joint, y_train))
-
-visualizer = DataVisualizer(X_test, y_joint, n_classes)
-visualizer.visualize()
+    y_joint = np.concatenate((y_test, y_valid, y_train))
+    visualizer = DataVisualizer(X_test, y_joint, n_classes)
+    visualizer.visualize()
 
 ### Import Tensorflow
 import tensorflow.compat.v1 as tf
