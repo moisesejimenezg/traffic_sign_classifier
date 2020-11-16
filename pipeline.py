@@ -98,7 +98,7 @@ def normalize_grayscale(image_data: tf.Tensor):
     return X_scaled
 
 ### Setup
-EPOCHS = 20
+EPOCHS = 50
 BATCH_SIZE = 256
 mu = 0
 sigma = 0.1
