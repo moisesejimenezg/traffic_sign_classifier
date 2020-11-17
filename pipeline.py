@@ -85,19 +85,6 @@ tf.disable_v2_behavior()
 from sklearn.utils import shuffle
 X_train, y_train = shuffle(X_train, y_train)
 
-### Normalize grayscale
-def normalize_grayscale(image_data: tf.Tensor):
-    """
-    Normalize the image data with Min-Max scaling to a range of [0.1, 0.9]
-    :param image_data: The image data to be normalized
-    :return: Normalized image data
-    """
-    max_value = 0.9
-    min_value = 0.1
-    X_std = (image_data - tf.reduce_min(image_data)) / (tf.reduce_max(image_data) - tf.reduce_min(image_data))
-    X_scaled = X_std * (max_value - min_value) + min_value
-    return X_scaled
-
 ### Setup
 EPOCHS = 20
 BATCH_SIZE = 256
@@ -111,7 +98,7 @@ def LeNet(x):
         x = tf.image.rgb_to_grayscale(x)
         depth = 1
         if normalize:
-            x = normalize_grayscale(x)
+            x = ly.normalize_grayscale(x)
 
     # Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
     layer_1 = ly.convolutional_network(x, 32, 1, 5, 6)

@@ -4,6 +4,18 @@ tf.disable_v2_behavior()
 mu = 0
 sigma = 0.1
 
+def normalize_grayscale(image_data: tf.Tensor):
+    """
+    Normalize the image data with Min-Max scaling to a range of [0.1, 0.9]
+    :param image_data: The image data to be normalized
+    :return: Normalized image data
+    """
+    max_value = 0.9
+    min_value = 0.1
+    X_std = (image_data - tf.reduce_min(image_data)) / (tf.reduce_max(image_data) - tf.reduce_min(image_data))
+    X_scaled = X_std * (max_value - min_value) + min_value
+    return X_scaled
+
 def linear_network(x_in: int, in_dim: int, out_dim: int, mu_in = mu, sigma_in = sigma):
     """
     Create a linear network layer with the input parameters provided.
