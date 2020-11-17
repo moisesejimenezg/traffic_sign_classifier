@@ -98,7 +98,7 @@ def normalize_grayscale(image_data: tf.Tensor):
     return X_scaled
 
 ### Setup
-EPOCHS = 50
+EPOCHS = 20
 BATCH_SIZE = 256
 mu = 0
 sigma = 0.1
@@ -136,18 +136,14 @@ def LeNet(x):
     # Activation.
     layer_1 = tf.nn.relu(layer_1)
     layer_1 = tf.nn.dropout(layer_1, high_keep_prob)
+    print("Layer 1 shape: " + str(layer_1.shape))
 
-    # Pooling. Input = 28x28x6. Output = 14x14x6.
-    k = [1, 2, 2, 1]
-    strides = [1, 2, 2, 1]
-    padding = 'VALID'
-    layer_1 = tf.nn.max_pool(layer_1, k, strides, padding)
-
-    # Layer 2: Convolutional. Output = 10x10x16.
-    layer_2 = convolutional_network(layer_1, 14, 6, 5, 16)
+    # Layer 2: Convolutional. Input = 28x28x6. Output = 10x10x16.
+    layer_2 = convolutional_network(layer_1, 28, 6, 5, 16)
 
     # Activation.
     layer_2 = tf.nn.relu(layer_2)
+    print("Layer 2 shape: " + str(layer_2.shape))
 
     # Pooling. Input = 10x10x16. Output = 5x5x16.
     k = [1, 2, 2, 1]
@@ -155,29 +151,31 @@ def LeNet(x):
     padding = 'VALID'
     layer_2 = tf.nn.max_pool(layer_2, k, strides, padding)
 
-    # Layer 2_1: Convolutional. Output = 1x1x412.
-    layer_2_1 = convolutional_network(layer_2, 5, 16, 5, 412)
+    # Layer 3: Convolutional. Output = 8x8x16.
+    layer_3 = convolutional_network(layer_2, 5, 16, 5, 412)
+    print("Layer 3 shape: " + str(layer_3.shape))
 
-    # Flatten. Input = 5x5x16. Output = 400.
-    fc = flatten(layer_2_1)
+    # Flatten. Input = 8x8x16. Output = 26368.
+    fc = flatten(layer_3)
     fc = tf.nn.dropout(fc, high_keep_prob)
 
-    # Layer 3: Fully Connected. Input = 412. Output = 122.
-    layer_3 = linear_network(fc, 412, 122)
-
-    # Activation.
-    layer_3 = tf.nn.relu(layer_3)
-    layer_3 = tf.nn.dropout(layer_3, low_keep_prob)
-
-    # Layer 4: Fully Connected. Input = 120. Output = 84.
-    layer_4 = linear_network(layer_3, 122, 84)
+    # Layer 3: Fully Connected. Input = 26368. Output = 512.
+    layer_4 = linear_network(fc, 26368, 512)
 
     # Activation.
     layer_4 = tf.nn.relu(layer_4)
     layer_4 = tf.nn.dropout(layer_4, low_keep_prob)
+    print("Layer 4 shape: " + str(layer_4.shape))
 
-    # Layer 5: Fully Connected. Input = 84. Output = 43.
-    logits = linear_network(layer_4, 84, 43)
+    # Layer 4: Fully Connected. Input = 512. Output = 86.
+    layer_5 = linear_network(layer_4, 512, 86)
+
+    # Activation.
+    layer_5 = tf.nn.relu(layer_5)
+    layer_5 = tf.nn.dropout(layer_5, low_keep_prob)
+
+    # Layer 5: Fully Connected. Input = 86. Output = 43.
+    logits = linear_network(layer_5, 86, 43)
 
     return logits
 
