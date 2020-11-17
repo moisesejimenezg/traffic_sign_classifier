@@ -2,6 +2,8 @@
 import pickle
 import sys
 
+import src.layers as ly
+
 training_file = 'train.p'
 validation_file = 'test.p'
 testing_file = 'valid.p'
@@ -70,7 +72,7 @@ import random
 import numpy as np
 
 if visualize:
-    from data_visualizer import DataVisualizer
+    from src.data_visualizer import DataVisualizer
 
     visualizer = DataVisualizer(X_test, y_test, y_valid, y_train, n_classes)
     visualizer.visualize()
@@ -99,30 +101,6 @@ def normalize_grayscale(image_data: tf.Tensor):
 ### Setup
 EPOCHS = 20
 BATCH_SIZE = 256
-mu = 0
-sigma = 0.1
-
-def linear_network(x_in: int, in_dim: int, out_dim: int, mu_in = mu, sigma_in = sigma):
-    """
-    Create a linear network layer with the input parameters provided.
-    """
-    W = tf.Variable(tf.truncated_normal(shape=(in_dim, out_dim), mean=mu_in, stddev=sigma_in))
-    B = tf.Variable(tf.zeros(shape=(1, out_dim)))
-    y_out = tf.matmul(x_in, W) + B
-    return y_out
-
-
-def convolutional_network(x_in: int, in_h_w: int, in_depth: int, filter_h_w: int, out_depth: int):
-    """
-    Create a convolutional network layer with the input parameters provided.
-    """
-    out_h_w = (in_h_w - filter_h_w) + 1 # no padding, stride = 1
-    W = tf.Variable(tf.truncated_normal(shape=(filter_h_w, filter_h_w, in_depth, out_depth), mean=mu, stddev=sigma))
-    B = tf.Variable(tf.zeros(shape=(1, out_h_w, out_h_w, out_depth)))
-    strides = [1, 1, 1, 1]
-    padding = 'VALID'
-    y_out = tf.nn.conv2d(x_in, W, strides=strides, padding=padding) + B
-    return y_out
 
 from tensorflow.compat.v1.layers import flatten
 
@@ -136,7 +114,7 @@ def LeNet(x):
             x = normalize_grayscale(x)
 
     # Layer 1: Convolutional. Input = 32x32x1. Output = 28x28x6.
-    layer_1 = convolutional_network(x, 32, 1, 5, 6)
+    layer_1 = ly.convolutional_network(x, 32, 1, 5, 6)
 
     # Activation.
     layer_1 = tf.nn.relu(layer_1)
@@ -144,7 +122,7 @@ def LeNet(x):
     print("Layer 1 shape: " + str(layer_1.shape))
 
     # Layer 2: Convolutional. Input = 28x28x6. Output = 10x10x16.
-    layer_2 = convolutional_network(layer_1, 28, 6, 5, 16)
+    layer_2 = ly.convolutional_network(layer_1, 28, 6, 5, 16)
 
     # Activation.
     layer_2 = tf.nn.relu(layer_2)
@@ -157,7 +135,7 @@ def LeNet(x):
     layer_2 = tf.nn.max_pool(layer_2, k, strides, padding)
 
     # Layer 3: Convolutional. Output = 8x8x16.
-    layer_3 = convolutional_network(layer_2, 5, 16, 5, 412)
+    layer_3 = ly.convolutional_network(layer_2, 5, 16, 5, 412)
     print("Layer 3 shape: " + str(layer_3.shape))
 
     # Flatten. Input = 8x8x16. Output = 26368.
@@ -165,7 +143,7 @@ def LeNet(x):
     fc = tf.nn.dropout(fc, high_keep_prob)
 
     # Layer 3: Fully Connected. Input = 26368. Output = 512.
-    layer_4 = linear_network(fc, 26368, 512)
+    layer_4 = ly.linear_network(fc, 26368, 512)
 
     # Activation.
     layer_4 = tf.nn.relu(layer_4)
@@ -173,14 +151,14 @@ def LeNet(x):
     print("Layer 4 shape: " + str(layer_4.shape))
 
     # Layer 4: Fully Connected. Input = 512. Output = 86.
-    layer_5 = linear_network(layer_4, 512, 86)
+    layer_5 = ly.linear_network(layer_4, 512, 86)
 
     # Activation.
     layer_5 = tf.nn.relu(layer_5)
     layer_5 = tf.nn.dropout(layer_5, low_keep_prob)
 
     # Layer 5: Fully Connected. Input = 86. Output = 43.
-    logits = linear_network(layer_5, 86, 43)
+    logits = ly.linear_network(layer_5, 86, 43)
 
     return logits
 
