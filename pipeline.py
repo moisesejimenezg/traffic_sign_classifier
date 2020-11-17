@@ -1,8 +1,14 @@
 # Load pickled data
 import pickle
 import sys
+import random
+
+from sklearn.utils import shuffle
+import matplotlib.pyplot as plt
+import numpy as np
 
 import src.lenet as ln
+from src.data_visualizer import DataVisualizer
 
 training_file = 'train.p'
 validation_file = 'test.p'
@@ -65,14 +71,10 @@ print("Number of classes =", n_classes)
 
 ### Data exploration visualization code goes here.
 ### Feel free to use as many code cells as needed.
-import matplotlib.pyplot as plt
 # Visualizations will be shown in the notebook.
 # %matplotlib inline
-import random
-import numpy as np
 
 if visualize:
-    from src.data_visualizer import DataVisualizer
 
     visualizer = DataVisualizer(X_test, y_test, y_valid, y_train, n_classes)
     visualizer.visualize()
@@ -82,7 +84,6 @@ import tensorflow.compat.v1 as tf
 tf.disable_v2_behavior()
 
 ### Shuffle the data
-from sklearn.utils import shuffle
 X_train, y_train = shuffle(X_train, y_train)
 
 ### Setup
