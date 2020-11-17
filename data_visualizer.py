@@ -8,10 +8,13 @@ def fill_empty_position(axes, x, y, img):
 
 
 class DataVisualizer:
-    def __init__(self, data, labels, class_number):
+    def __init__(self, data, test_labels, valid_labels, train_labels, class_number):
         self.class_number = class_number
         self.data = data
-        self.labels = labels
+        self.test_labels = test_labels
+        self.valid_labels = valid_labels
+        self.train_labels = train_labels
+        self.labels = np.concatenate((test_labels, valid_labels, train_labels))
 
     def visualize(self):
         self.__generate_histogram()
@@ -47,4 +50,5 @@ class DataVisualizer:
         plt.show()
 
     def __generate_histogram(self):
-        plt.hist(self.labels, range(0, 43))
+        plt.hist([self.test_labels, self.valid_labels, self.train_labels], label=["Test", "Validation", "Train"], bins=range(0, 43))
+        plt.legend(loc='upper center')

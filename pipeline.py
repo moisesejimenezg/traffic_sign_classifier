@@ -72,8 +72,7 @@ import numpy as np
 if visualize:
     from data_visualizer import DataVisualizer
 
-    y_joint = np.concatenate((y_test, y_valid, y_train))
-    visualizer = DataVisualizer(X_test, y_joint, n_classes)
+    visualizer = DataVisualizer(X_test, y_test, y_valid, y_train, n_classes)
     visualizer.visualize()
 
 ### Import Tensorflow
