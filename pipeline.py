@@ -53,19 +53,20 @@ X_test, y_test = test['features'], test['labels']
 ### Replace each question mark with the appropriate value. 
 ### Use python, pandas or numpy methods rather than hard coding the results
 
-# Total number of images: 51839
-n_train = 34799
+n_train = y_train.shape[0]
 
-n_validation = 12630
+n_validation = y_valid.shape[0]
 
-n_test = 4410
+n_test = y_test.shape[0]
 
-image_shape = [32, 32]
+image_shape = X_train[0].shape
 
-n_classes = 43
+labels = set(y_test)
+n_classes = len(labels)
 
 print("Number of training examples =", n_train)
 print("Number of testing examples =", n_test)
+print("Number of validation examples =", n_validation)
 print("Image data shape =", image_shape)
 print("Number of classes =", n_classes)
 
@@ -75,8 +76,8 @@ print("Number of classes =", n_classes)
 # %matplotlib inline
 
 if visualize:
-
     visualizer = DataVisualizer(X_test, y_test, y_valid, y_train, n_classes)
+    visualizer.generate_histogram()
     visualizer.visualize()
 
 ### Import Tensorflow

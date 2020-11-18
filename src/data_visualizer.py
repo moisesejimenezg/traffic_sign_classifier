@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def fill_empty_position(axes, x, y, img):
-    axes[x, y].imshow(np.zeros(img.squeeze().shape))
-    axes[x, y].get_xaxis().set_visible(False)
-    axes[x, y].get_yaxis().set_visible(False)
+    axes[x, y].imshow(255 + np.zeros(img.squeeze().shape))
+    axes[x, y].set_axis_off()
 
 
 class DataVisualizer:
@@ -16,8 +16,16 @@ class DataVisualizer:
         self.train_labels = train_labels
         self.labels = np.concatenate((test_labels, valid_labels, train_labels))
 
+    def generate_histogram(self):
+        plt.hist(
+            [self.test_labels, self.valid_labels, self.train_labels],
+            label=["Test", "Validation", "Train"],
+            bins=range(0, 43),
+        )
+        plt.legend(loc="upper center")
+        plt.title("Label Histogram")
+
     def visualize(self):
-        self.__generate_histogram()
         positions = self.__find_examples()
         self.__display_grid(positions)
 
@@ -45,10 +53,8 @@ class DataVisualizer:
             axes[x, y].get_xaxis().set_visible(False)
             axes[x, y].get_yaxis().set_visible(False)
             i += 1
+        f.set_figheight(8)
+        f.set_figwidth(8)
         fill_empty_position(axes, 8, 3, self.data[0])
         fill_empty_position(axes, 8, 4, self.data[0])
         plt.show()
-
-    def __generate_histogram(self):
-        plt.hist([self.test_labels, self.valid_labels, self.train_labels], label=["Test", "Validation", "Train"], bins=range(0, 43))
-        plt.legend(loc='upper center')
