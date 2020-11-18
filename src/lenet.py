@@ -1,4 +1,5 @@
 import tensorflow.compat.v1 as tf
+
 tf.disable_v2_behavior()
 
 from tensorflow.compat.v1.layers import flatten
@@ -6,7 +7,13 @@ from tensorflow.compat.v1.layers import flatten
 import src.layers as ly
 
 
-def network(x: tf.placeholder, grayscale: bool, normalize: bool, low_keep_prob: float, high_keep_prob: float):
+def network(
+    x: tf.placeholder,
+    grayscale: bool,
+    normalize: bool,
+    low_keep_prob: float,
+    high_keep_prob: float,
+):
     """
     Multilayer network to classify traffic sign images.
     @param x: input images
@@ -40,7 +47,7 @@ def network(x: tf.placeholder, grayscale: bool, normalize: bool, low_keep_prob: 
     # Pooling. Input = 10x10x16. Output = 5x5x16.
     k = [1, 2, 2, 1]
     strides = [1, 2, 2, 1]
-    padding = 'VALID'
+    padding = "VALID"
     layer_2 = tf.nn.max_pool(layer_2, k, strides, padding)
 
     # Layer 3: Convolutional. Output = 8x8x16.
@@ -70,4 +77,3 @@ def network(x: tf.placeholder, grayscale: bool, normalize: bool, low_keep_prob: 
     logits = ly.linear_network(layer_5, 86, 43)
 
     return logits
-
