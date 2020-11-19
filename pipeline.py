@@ -50,9 +50,6 @@ X_train, y_train = train['features'], train['labels']
 X_valid, y_valid = valid['features'], valid['labels']
 X_test, y_test = test['features'], test['labels']
 
-### Replace each question mark with the appropriate value. 
-### Use python, pandas or numpy methods rather than hard coding the results
-
 n_train = y_train.shape[0]
 
 n_validation = y_valid.shape[0]
@@ -70,13 +67,8 @@ print("Number of validation examples =", n_validation)
 print("Image data shape =", image_shape)
 print("Number of classes =", n_classes)
 
-### Data exploration visualization code goes here.
-### Feel free to use as many code cells as needed.
-# Visualizations will be shown in the notebook.
-# %matplotlib inline
-
+visualizer = DataVisualizer(X_test, y_test, y_valid, y_train, n_classes)
 if visualize:
-    visualizer = DataVisualizer(X_test, y_test, y_valid, y_train, n_classes)
     visualizer.generate_histogram()
     visualizer.visualize()
 
@@ -142,9 +134,14 @@ with tf.Session() as sess:
             sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, low_keep_prob: low_keep_prob_v, high_keep_prob: high_keep_prob_v})
             
         validation_accuracy = evaluate(X_valid, y_valid)
+        training_accuracy = evaluate(X_train, y_train)
         print("EPOCH {} ...".format(i+1))
         print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+        print("Training Accuracy = {:.3f}".format(training_accuracy))
         print()
+        visualizer.add_training_accuracy(training_accuracy)
+        visualizer.add_validation_accuracy(validation_accuracy)
         
     saver.save(sess, './lenet')
     print("Model saved")
+visualizer.visualize_accuracy()

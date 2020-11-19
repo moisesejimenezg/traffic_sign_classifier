@@ -35,14 +35,12 @@ def network(
     # Activation.
     layer_1 = tf.nn.relu(layer_1)
     layer_1 = tf.nn.dropout(layer_1, high_keep_prob)
-    print("Layer 1 shape: " + str(layer_1.shape))
 
     # Layer 2: Convolutional. Input = 28x28x6. Output = 10x10x16.
     layer_2 = ly.convolutional_network(layer_1, 28, 6, 5, 16)
 
     # Activation.
     layer_2 = tf.nn.relu(layer_2)
-    print("Layer 2 shape: " + str(layer_2.shape))
 
     # Pooling. Input = 10x10x16. Output = 5x5x16.
     k = [1, 2, 2, 1]
@@ -52,7 +50,6 @@ def network(
 
     # Layer 3: Convolutional. Output = 8x8x16.
     layer_3 = ly.convolutional_network(layer_2, 5, 16, 5, 412)
-    print("Layer 3 shape: " + str(layer_3.shape))
 
     # Flatten. Input = 8x8x16. Output = 26368.
     fc = flatten(layer_3)
@@ -64,7 +61,6 @@ def network(
     # Activation.
     layer_4 = tf.nn.relu(layer_4)
     layer_4 = tf.nn.dropout(layer_4, low_keep_prob)
-    print("Layer 4 shape: " + str(layer_4.shape))
 
     # Layer 4: Fully Connected. Input = 512. Output = 86.
     layer_5 = ly.linear_network(layer_4, 512, 86)
