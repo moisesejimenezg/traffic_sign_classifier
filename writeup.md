@@ -19,10 +19,10 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image0]: ./images/histogram.png "Histogram"
-[image1]: ./images/signs.png "Signs"
-[image3]: ./examples/random_noise.jpg "Random Noise"
-[image4]: ./examples/placeholder.png "Traffic Sign 1"
+[histogram]: ./images/histogram.png "Histogram"
+[signs]: ./images/signs.png "Signs"
+[grayscale]: ./images/grayscale.png "Grayscale"
+[normalize]: ./images/normalize.png "Normalized"
 [image5]: ./examples/placeholder.png "Traffic Sign 2"
 [image6]: ./examples/placeholder.png "Traffic Sign 3"
 [image7]: ./examples/placeholder.png "Traffic Sign 4"
@@ -53,11 +53,11 @@ You're reading it! and here is a link to my [project code](https://github.com/mo
 Here is an exploratory visualization of the data set. It is a bar chart showing how the data is distributed among the
 test, validation and trainin datasets.
 
-![alt text][image0]
+![alt text][histogram]
 
 Furthermore an example of each one of the different classes is also displayed below.
 
-![alt text][image1]
+![alt text][signs]
 
 ### Design and Test a Model Architecture
 
@@ -68,49 +68,59 @@ through shapes and not color.
 
 Here is an example of a traffic sign image before and after grayscaling.
 
-![alt text][image2]
+![alt text][grayscale]
 
-As a last step, I normalized the image data because ...
+As a last step, I normalized the image data because it improves numerical stability and also improves convergence. Below
+is the distribution of pixel values of a grayscale image and the distribution for a normalized image. Clearly the bins
+are all within 0 and 1 (actual min-max normalization used was for 0.1 - 0.9).
 
-I decided to generate additional data because ... 
+![alt text][normalize]
 
-To add more data to the the data set, I used the following techniques because ... 
-
-Here is an example of an original image and an augmented image:
-
-![alt text][image3]
-
-The difference between the original data set and the augmented data set is the following ... 
-
+Note: Because I used tensorflow functions for both grayscale conversion and normalization the writeup_generator.py
+script was necessary to generate this images.
 
 #### 2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
 
 My final model consisted of the following layers:
 
-| Layer         		|     Description	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| Input         		| 32x32x3 RGB image   							| 
-| Convolution 3x3     	| 1x1 stride, same padding, outputs 32x32x64 	|
-| RELU					|												|
-| Max pooling	      	| 2x2 stride,  outputs 16x16x64 				|
-| Convolution 3x3	    | etc.      									|
-| Fully connected		| etc.        									|
-| Softmax				| etc.        									|
-|						|												|
-|						|												|
- 
+| Layer | Description |
+|:---------------------:|:---------------------------------------------:|
+| Input | 32x32 normalized grayscale image |
+| Convolution 5x5 | 1x1 stride, valid padding, outputs 28x28x6 |
+| RELU ||
+| Dropout | 70% keep probability |
+| Convolution 5x5 | 1x1 stride, valid padding, outputs 10x10x16 |
+| RELU ||
+| Max Pooling 2x2| 1x1 stride, valid padding, outputs 5x5x16|
+| Convolution 5x5 | 1x1 stride, valid padding, output 8x8x16 |
+| flatten | Output 26368 |
+| Dropout | 70% keep probability |
+| Fully connected | Output 512 |
+| RELU ||
+| Dropout | 50% keep probability |
+| Fully connected | Output 86 |
+| RELU ||
+| Dropout | 50% keep probability |
+| Fully connected | Output 43 |
 
 
 #### 3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
-To train the model, I used an ....
+Some different learning rates like 0.001, 0.0001, 0.0005 and 0.01; while 0.01 never convereged and 0.0001 took longer,
+0.001 and 0.0005 showed similar convergence time. Then using 100 epochs the convergence behavior for 0.001 was analyzed.
+Wherease the 0.95 mark was reached before the 10th epoch, there was consistently no improvement past the 17th epoch. As
+such 20 epochs were the chosen value. As for the weights in the convolution and fully connected layers, a mean of 0 and
+standard deviation of 0.1 was used while the bias was initialized to 0.
+
+The adam optimizer was chosen over regular gradient descent since it's easier to tune and converges faster. Softmax
+cross entropy calculation was used as the loss function.
 
 #### 4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
 My final model results were:
-* training set accuracy of ?
-* validation set accuracy of ? 
-* test set accuracy of ?
+* training set accuracy of 99.7%
+* validation set accuracy of 96.1%
+* test set accuracy of 96.0%
 
 If an iterative approach was chosen:
 * What was the first architecture that was tried and why was it chosen?
