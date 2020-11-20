@@ -17,6 +17,7 @@ class DataVisualizer:
         self.labels = np.concatenate((test_labels, valid_labels, train_labels))
         self.training_accuracies = []
         self.validation_accuracies = []
+        self.test_accuracies = []
 
     def generate_histogram(self):
         plt.hist(
@@ -37,11 +38,16 @@ class DataVisualizer:
     def add_validation_accuracy(self, accuracy: float):
         self.validation_accuracies.append(accuracy)
 
+    def add_test_accuracy(self, accuracy: float):
+        self.test_accuracies.append(accuracy)
+
     def visualize_accuracy(self):
         epochs = range(0, len(self.training_accuracies))
-        plt.plot(epochs, self.training_accuracies)
-        plt.scatter(epochs, self.validation_accuracies, marker="+")
-        plt.ylim(0, 1)
+        plt.plot(epochs, self.training_accuracies, label="Training")
+        plt.scatter(epochs, self.validation_accuracies, marker="+", label="Validation")
+        plt.scatter(epochs, self.test_accuracies, marker="x", label="Test")
+        plt.ylim(0.5, 1)
+        plt.legend(loc="lower right")
         plt.show()
 
     def __find_examples(self):

@@ -117,7 +117,7 @@ def evaluate(X_data, y_data):
 low_keep_prob_v = 1
 high_keep_prob_v = 1
 if drop_outs:
-    low_keep_prob_v = 0.6
+    low_keep_prob_v = 0.5
     high_keep_prob_v = 0.7
 
 with tf.Session() as sess:
@@ -135,12 +135,15 @@ with tf.Session() as sess:
             
         validation_accuracy = evaluate(X_valid, y_valid)
         training_accuracy = evaluate(X_train, y_train)
+        test_accuracy = evaluate(X_test, y_test)
         print("EPOCH {} ...".format(i+1))
         print("Validation Accuracy = {:.3f}".format(validation_accuracy))
         print("Training Accuracy = {:.3f}".format(training_accuracy))
+        print("Test Accuracy = {:.3f}".format(test_accuracy))
         print()
         visualizer.add_training_accuracy(training_accuracy)
         visualizer.add_validation_accuracy(validation_accuracy)
+        visualizer.add_test_accuracy(test_accuracy)
         
     saver.save(sess, './lenet')
     print("Model saved")
