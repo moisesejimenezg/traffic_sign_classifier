@@ -106,7 +106,7 @@ My final model consisted of the following layers:
 
 #### 3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
-Some different learning rates like 0.001, 0.0001, 0.0005 and 0.01; while 0.01 never convereged and 0.0001 took longer,
+Some different learning rates like 0.001, 0.0001, 0.0005 and 0.01; while 0.01 never converged and 0.0001 took longer,
 0.001 and 0.0005 showed similar convergence time. Then using 100 epochs the convergence behavior for 0.001 was analyzed.
 Wherease the 0.95 mark was reached before the 10th epoch, there was consistently no improvement past the 17th epoch. As
 such 20 epochs were the chosen value. As for the weights in the convolution and fully connected layers, a mean of 0 and
