@@ -1,14 +1,15 @@
 import pickle
 import tensorflow.compat.v1 as tf
+
 tf.disable_v2_behavior()
 import matplotlib.pyplot as plt
 
 import layers as ly
 
-training_file = 'train.p'
-with open(training_file, mode='rb') as f:
+training_file = "train.p"
+with open(training_file, mode="rb") as f:
     train = pickle.load(f)
-X_train, y_train = train['features'], train['labels']
+X_train, y_train = train["features"], train["labels"]
 
 
 x = tf.placeholder(tf.float32, (None, 32, 32, 3))
@@ -32,4 +33,3 @@ axes[0].set_title("Grayscale")
 axes[1].hist(x_normalize[0].flatten())
 axes[1].set_title("Normalized")
 plt.show()
-

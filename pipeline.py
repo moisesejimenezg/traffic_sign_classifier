@@ -11,10 +11,10 @@ import src.lenet as ln
 from src.data_visualizer import DataVisualizer
 from src.session_wrapper import SessionWrapper
 
-training_file = 'train.p'
-validation_file = 'test.p'
-testing_file = 'valid.p'
-internet_file = 'internet.p'
+training_file = "train.p"
+validation_file = "test.p"
+testing_file = "valid.p"
+internet_file = "internet.p"
 
 GRAYSCALE_IDX = 1
 NORMALIZE_IDX = 2
@@ -45,16 +45,16 @@ print("Apply two dropouts: " + str(drop_outs))
 print("Visualize: " + str(visualize))
 print("Load session: " + str(load_sess))
 
-with open(training_file, mode='rb') as f:
+with open(training_file, mode="rb") as f:
     train = pickle.load(f)
-with open(validation_file, mode='rb') as f:
+with open(validation_file, mode="rb") as f:
     valid = pickle.load(f)
-with open(testing_file, mode='rb') as f:
+with open(testing_file, mode="rb") as f:
     test = pickle.load(f)
-    
-X_train, y_train = train['features'], train['labels']
-X_valid, y_valid = valid['features'], valid['labels']
-X_test, y_test = test['features'], test['labels']
+
+X_train, y_train = train["features"], train["labels"]
+X_valid, y_valid = valid["features"], valid["labels"]
+X_test, y_test = test["features"], test["labels"]
 
 n_train = y_train.shape[0]
 
@@ -80,6 +80,7 @@ if visualize:
 
 ### Import Tensorflow
 import tensorflow.compat.v1 as tf
+
 tf.disable_v2_behavior()
 
 ### Shuffle the data
@@ -99,7 +100,9 @@ one_shot_y = tf.one_hot(y, 43)
 learning_rate = 0.001
 
 logits = ln.network(x, grayscale, normalize, low_keep_prob, high_keep_prob)
-cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=one_shot_y, logits=logits)
+cross_entropy = tf.nn.softmax_cross_entropy_with_logits(
+    labels=one_shot_y, logits=logits
+)
 loss_operation = tf.reduce_mean(cross_entropy)
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
 training_operation = optimizer.minimize(loss_operation)
@@ -109,15 +112,23 @@ correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_shot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 session_wrapper = SessionWrapper("./lenet")
 
+
 def evaluate(X_data, y_data):
     num_examples = len(X_data)
     total_accuracy = 0
     sess = tf.get_default_session()
     for offset in range(0, num_examples, BATCH_SIZE):
-        batch_x, batch_y = X_data[offset:offset+BATCH_SIZE], y_data[offset:offset+BATCH_SIZE]
-        accuracy = sess.run(accuracy_operation, feed_dict={x: batch_x, y: batch_y, low_keep_prob: 1, high_keep_prob: 1})
-        total_accuracy += (accuracy * len(batch_x))
+        batch_x, batch_y = (
+            X_data[offset : offset + BATCH_SIZE],
+            y_data[offset : offset + BATCH_SIZE],
+        )
+        accuracy = sess.run(
+            accuracy_operation,
+            feed_dict={x: batch_x, y: batch_y, low_keep_prob: 1, high_keep_prob: 1},
+        )
+        total_accuracy += accuracy * len(batch_x)
     return total_accuracy / num_examples
+
 
 ### Train
 low_keep_prob_v = 1
@@ -129,7 +140,7 @@ if drop_outs:
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     num_examples = X_train.shape[0]
-    
+
     if not load_sess:
         print("Training...")
         print()
@@ -138,12 +149,20 @@ with tf.Session() as sess:
             for offset in range(0, num_examples, BATCH_SIZE):
                 end = offset + BATCH_SIZE
                 batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-                sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, low_keep_prob: low_keep_prob_v, high_keep_prob: high_keep_prob_v})
-                
+                sess.run(
+                    training_operation,
+                    feed_dict={
+                        x: batch_x,
+                        y: batch_y,
+                        low_keep_prob: low_keep_prob_v,
+                        high_keep_prob: high_keep_prob_v,
+                    },
+                )
+
             validation_accuracy = evaluate(X_valid, y_valid)
             training_accuracy = evaluate(X_train, y_train)
             test_accuracy = evaluate(X_test, y_test)
-            print("EPOCH {} ...".format(i+1))
+            print("EPOCH {} ...".format(i + 1))
             print("Validation Accuracy = {:.3f}".format(validation_accuracy))
             print("Training Accuracy = {:.3f}".format(training_accuracy))
             print("Test Accuracy = {:.3f}".format(test_accuracy))
@@ -152,7 +171,7 @@ with tf.Session() as sess:
             visualizer.add_validation_accuracy(validation_accuracy)
             visualizer.add_test_accuracy(test_accuracy)
             visualizer.visualize_accuracy()
-            
+
         session_wrapper.write(sess)
     else:
         session_wrapper.read(sess)
@@ -161,13 +180,31 @@ with tf.Session() as sess:
         print("Validation Accuracy = {:.3f}".format(validation_accuracy))
         print("Test Accuracy = {:.3f}".format(test_accuracy))
 
-    with open(internet_file, mode='rb') as f:
+    with open(internet_file, mode="rb") as f:
         internet = pickle.load(f)
 
         print("Labeling...")
-        result = sess.run(tf.argmax(logits, 1), feed_dict={x: internet["images"][0:5], low_keep_prob: 1, high_keep_prob: 1})
-        accuracy = sess.run(accuracy_operation, feed_dict={x: internet["images"], y: internet["labels"], low_keep_prob: 1, high_keep_prob: 1})
+        result = sess.run(
+            tf.argmax(logits, 1),
+            feed_dict={x: internet["images"][0:5], low_keep_prob: 1, high_keep_prob: 1},
+        )
+        accuracy = sess.run(
+            accuracy_operation,
+            feed_dict={
+                x: internet["images"],
+                y: internet["labels"],
+                low_keep_prob: 1,
+                high_keep_prob: 1,
+            },
+        )
         print("Internet Accuracy = {:.3f}".format(accuracy))
 
         for i in range(0, len(result)):
-            print("name: " + internet["names"][i] + " predicted label: " + str(result[i]) + " label: " + str(internet["labels"][i]))
+            print(
+                "name: "
+                + internet["names"][i]
+                + " predicted label: "
+                + str(result[i])
+                + " label: "
+                + str(internet["labels"][i])
+            )
