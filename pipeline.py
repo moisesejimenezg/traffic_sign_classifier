@@ -14,6 +14,7 @@ from src.session_wrapper import SessionWrapper
 training_file = 'train.p'
 validation_file = 'test.p'
 testing_file = 'valid.p'
+internet_file = 'internet.p'
 
 GRAYSCALE_IDX = 1
 NORMALIZE_IDX = 2
@@ -34,8 +35,8 @@ else:
     grayscale = True
     normalize = True
     drop_outs = True
-    visualize = True
-    load_sess = False
+    visualize = False
+    load_sess = True
 
 print("Pipeline running with:")
 print("Grayscale transform: " + str(grayscale))
@@ -159,3 +160,14 @@ with tf.Session() as sess:
         test_accuracy = evaluate(X_test, y_test)
         print("Validation Accuracy = {:.3f}".format(validation_accuracy))
         print("Test Accuracy = {:.3f}".format(test_accuracy))
+
+    with open(internet_file, mode='rb') as f:
+        internet = pickle.load(f)
+
+        print("Labeling...")
+        result = sess.run(tf.argmax(logits, 1), feed_dict={x: internet["images"][0:5], low_keep_prob: 1, high_keep_prob: 1})
+        accuracy = sess.run(accuracy_operation, feed_dict={x: internet["images"], y: internet["labels"], low_keep_prob: 1, high_keep_prob: 1})
+        print("Internet Accuracy = {:.3f}".format(accuracy))
+
+        for i in range(0, len(result)):
+            print("name: " + internet["names"][i] + " predicted label: " + str(result[i]) + " label: " + str(internet["labels"][i]))
