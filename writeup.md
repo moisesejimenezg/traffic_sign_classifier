@@ -23,10 +23,11 @@ The goals / steps of this project are the following:
 [signs]: ./images/signs.png "Signs"
 [grayscale]: ./images/grayscale.png "Grayscale"
 [normalize]: ./images/normalize.png "Normalized"
-[image5]: ./examples/placeholder.png "Traffic Sign 2"
-[image6]: ./examples/placeholder.png "Traffic Sign 3"
-[image7]: ./examples/placeholder.png "Traffic Sign 4"
-[image8]: ./examples/placeholder.png "Traffic Sign 5"
+[internet0]: ./extra_traffic_signs/00161.png "Extra Traffic Sign 0"
+[internet1]: ./extra_traffic_signs/00260.png "Extra Traffic Sign 1"
+[internet2]: ./extra_traffic_signs/00315.png "Extra Traffic Sign 2"
+[internet3]: ./extra_traffic_signs/00499.png "Extra Traffic Sign 3"
+[internet4]: ./extra_traffic_signs/00565.png "Extra Traffic Sign 4"
 
 ## Rubric Points
 ### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
@@ -124,7 +125,9 @@ My final model results were:
 
 If an iterative approach was chosen:
 * What was the first architecture that was tried and why was it chosen?
+The LeNet5 from the course was used as a basis since it was mentioned as a good starting point.
 * What were some problems with the initial architecture?
+#TODO
 * How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
 * Which parameters were tuned? How were they adjusted and why?
 * What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
@@ -141,25 +144,24 @@ If a well known architecture was chosen:
 
 Here are five German traffic signs that I found on the web:
 
-![alt text][image4] ![alt text][image5] ![alt text][image6] 
-![alt text][image7] ![alt text][image8]
+![alt text][internet0] ![alt text][internet1] ![alt text][internet2] ![alt text][internet3] ![alt text][internet4]
 
-The first image might be difficult to classify because ...
+#TODO
 
 #### 2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
 
 Here are the results of the prediction:
 
-| Image			        |     Prediction	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| Stop Sign      		| Stop sign   									| 
-| U-turn     			| U-turn 										|
-| Yield					| Yield											|
-| 100 km/h	      		| Bumpy Road					 				|
-| Slippery Road			| Slippery Road      							|
+| Image | Prediction |
+|:---------------------:|:---------------------------------------------:|
+| Vehicles over 3.5 metric tons prohibited | Vehicles over 3.5 metric tons prohibited |
+| Ahead only | Ahead only |
+| End of no passing by vehicles over 3.5 metric tons | End of no passing by vehicles over 3.5 metric tons |
+| Priority road | Roundabout mandatory |
+| Slippery Road | Slippery Road |
 
-
-The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This compares favorably to the accuracy on the test set of ...
+The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This is below the
+accuracy of the test, train and validation sets while still being able to perform somewhat reliably.
 
 #### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
