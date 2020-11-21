@@ -9,6 +9,7 @@ import numpy as np
 
 import src.lenet as ln
 from src.data_visualizer import DataVisualizer
+from src.session_wrapper import SessionWrapper
 
 training_file = 'train.p'
 validation_file = 'test.p'
@@ -18,6 +19,7 @@ GRAYSCALE_IDX = 1
 NORMALIZE_IDX = 2
 DROP_OUTS_IDX = 3
 VISUALIZE_IDX = 4
+LOAD_SESS_IDX = 5
 DEBUG_MODE = False
 
 print(sys.argv)
@@ -26,18 +28,21 @@ if not DEBUG_MODE:
     normalize = sys.argv[NORMALIZE_IDX] == "True"
     drop_outs = sys.argv[DROP_OUTS_IDX] == "True"
     visualize = sys.argv[VISUALIZE_IDX] == "True"
+    load_sess = sys.argv[LOAD_SESS_IDX] == "True"
 else:
     print("DEBUG MODE")
     grayscale = True
     normalize = True
     drop_outs = True
     visualize = True
+    load_sess = False
 
 print("Pipeline running with:")
 print("Grayscale transform: " + str(grayscale))
 print("Normalize grayscale transform: " + str(normalize))
 print("Apply two dropouts: " + str(drop_outs))
 print("Visualize: " + str(visualize))
+print("Load session: " + str(load_sess))
 
 with open(training_file, mode='rb') as f:
     train = pickle.load(f)
@@ -101,7 +106,7 @@ training_operation = optimizer.minimize(loss_operation)
 ### Set up accuracy computation
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_shot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-saver = tf.train.Saver()
+session_wrapper = SessionWrapper("./lenet")
 
 def evaluate(X_data, y_data):
     num_examples = len(X_data)
@@ -124,27 +129,33 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     num_examples = X_train.shape[0]
     
-    print("Training...")
-    print()
-    for i in range(EPOCHS):
-        X_train, y_train = shuffle(X_train, y_train)
-        for offset in range(0, num_examples, BATCH_SIZE):
-            end = offset + BATCH_SIZE
-            batch_x, batch_y = X_train[offset:end], y_train[offset:end]
-            sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, low_keep_prob: low_keep_prob_v, high_keep_prob: high_keep_prob_v})
-            
-        validation_accuracy = evaluate(X_valid, y_valid)
-        training_accuracy = evaluate(X_train, y_train)
-        test_accuracy = evaluate(X_test, y_test)
-        print("EPOCH {} ...".format(i+1))
-        print("Validation Accuracy = {:.3f}".format(validation_accuracy))
-        print("Training Accuracy = {:.3f}".format(training_accuracy))
-        print("Test Accuracy = {:.3f}".format(test_accuracy))
+    if not load_sess:
+        print("Training...")
         print()
-        visualizer.add_training_accuracy(training_accuracy)
-        visualizer.add_validation_accuracy(validation_accuracy)
-        visualizer.add_test_accuracy(test_accuracy)
-        
-    saver.save(sess, './lenet')
-    print("Model saved")
-visualizer.visualize_accuracy()
+        for i in range(EPOCHS):
+            X_train, y_train = shuffle(X_train, y_train)
+            for offset in range(0, num_examples, BATCH_SIZE):
+                end = offset + BATCH_SIZE
+                batch_x, batch_y = X_train[offset:end], y_train[offset:end]
+                sess.run(training_operation, feed_dict={x: batch_x, y: batch_y, low_keep_prob: low_keep_prob_v, high_keep_prob: high_keep_prob_v})
+                
+            validation_accuracy = evaluate(X_valid, y_valid)
+            training_accuracy = evaluate(X_train, y_train)
+            test_accuracy = evaluate(X_test, y_test)
+            print("EPOCH {} ...".format(i+1))
+            print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+            print("Training Accuracy = {:.3f}".format(training_accuracy))
+            print("Test Accuracy = {:.3f}".format(test_accuracy))
+            print()
+            visualizer.add_training_accuracy(training_accuracy)
+            visualizer.add_validation_accuracy(validation_accuracy)
+            visualizer.add_test_accuracy(test_accuracy)
+            visualizer.visualize_accuracy()
+            
+        session_wrapper.write(sess)
+    else:
+        session_wrapper.read(sess)
+        validation_accuracy = evaluate(X_valid, y_valid)
+        test_accuracy = evaluate(X_test, y_test)
+        print("Validation Accuracy = {:.3f}".format(validation_accuracy))
+        print("Test Accuracy = {:.3f}".format(test_accuracy))

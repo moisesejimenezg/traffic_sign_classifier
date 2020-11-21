@@ -8,6 +8,8 @@ class SessionWrapper:
 
     def write(self, session):
         self.saver.save(session, self.name)
+        print("Model written.")
 
     def read(self, session):
         self.saver.restore(session, self.name)
+        print("Model read.")
