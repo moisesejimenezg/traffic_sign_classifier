@@ -48,28 +48,28 @@ def network(
     padding = "VALID"
     layer_2 = tf.nn.max_pool(layer_2, k, strides, padding)
 
-    # Layer 3: Convolutional. Output = 8x8x16.
-    layer_3 = ly.convolutional_network(layer_2, 5, 16, 5, 412)
+    # Layer 3: Convolutional. Input = 5x5x16, Output = 8x8x412.
+    layer_3 = ly.convolutional_network(layer_2, 5, 16, 5, 512)
 
-    # Flatten. Input = 8x8x16. Output = 26368.
+    # Flatten. Input = 8x8x1024. Output = 26368.
     fc = flatten(layer_3)
     fc = tf.nn.dropout(fc, high_keep_prob)
 
-    # Layer 3: Fully Connected. Input = 26368. Output = 512.
-    layer_4 = ly.linear_network(fc, 26368, 512)
+    # Layer 4: Fully Connected. Input = 65536. Output = 512.
+    layer_4 = ly.linear_network(fc, 32768, 256)
 
     # Activation.
     layer_4 = tf.nn.relu(layer_4)
     layer_4 = tf.nn.dropout(layer_4, low_keep_prob)
 
-    # Layer 4: Fully Connected. Input = 512. Output = 86.
-    layer_5 = ly.linear_network(layer_4, 512, 86)
+    # Layer 5: Fully Connected. Input = 512. Output = 86.
+    layer_5 = ly.linear_network(layer_4, 256, 128)
 
     # Activation.
     layer_5 = tf.nn.relu(layer_5)
     layer_5 = tf.nn.dropout(layer_5, low_keep_prob)
 
-    # Layer 5: Fully Connected. Input = 86. Output = 43.
-    logits = ly.linear_network(layer_5, 86, 43)
+    # Layer 6: Fully Connected. Input = 86. Output = 43.
+    logits = ly.linear_network(layer_5, 128, 43)
 
     return logits
