@@ -110,8 +110,7 @@ training_operation = optimizer.minimize(loss_operation)
 ### Set up accuracy computation
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_shot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-session_wrapper = SessionWrapper("./lenet")
-
+session_wrapper = SessionWrapper("./lenet_ba")
 
 def evaluate(X_data, y_data):
     num_examples = len(X_data)
@@ -170,7 +169,7 @@ with tf.Session() as sess:
             visualizer.add_training_accuracy(training_accuracy)
             visualizer.add_validation_accuracy(validation_accuracy)
             visualizer.add_test_accuracy(test_accuracy)
-            visualizer.visualize_accuracy()
+        visualizer.visualize_accuracy()
 
         session_wrapper.write(sess)
     else:
@@ -202,9 +201,30 @@ with tf.Session() as sess:
         for i in range(0, len(result)):
             print(
                 "name: "
-                + internet["names"][i]
+                + internet["file_names"][i]
                 + " predicted label: "
                 + str(result[i])
                 + " label: "
                 + str(internet["labels"][i])
             )
+
+        softmax = sess.run(
+            tf.nn.softmax(logits),
+            feed_dict={x: internet["images"][0:5], low_keep_prob: 1, high_keep_prob: 1},
+        )
+        softmax_tuples = []
+        for image_softmax in softmax:
+            softmax_tuples.append([])
+            for i in range(0, len(image_softmax)):
+                softmax_tuples[-1].append({"id": i, "p": image_softmax[i]})
+        output_strings = []
+        for softmax_tuple in softmax_tuples:
+            softmax_tuple.sort(key=lambda x: x["p"])
+            string = ""
+            for i in range(0, 5):
+                idx = - 1 - i
+                sm = softmax_tuple[idx]
+                string += "| " + str(i) + " | " + str(sm["id"]) + " | " + internet["names"][sm["id"]] + " | " + str(sm["p"] * 100) + ' |\n'
+            print("| n | id | name | probability |")
+            print("|:-:|:-:|:-:|:-:|")
+            print(string)
