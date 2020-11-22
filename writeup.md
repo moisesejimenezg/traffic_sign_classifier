@@ -16,18 +16,17 @@ The goals / steps of this project are the following:
 * Analyze the softmax probabilities of the new images
 * Summarize the results with a written report
 
-
 [//]: # (Image References)
 
 [histogram]: ./images/histogram.png "Histogram"
 [signs]: ./images/signs.png "Signs"
 [grayscale]: ./images/grayscale.png "Grayscale"
 [normalize]: ./images/normalize.png "Normalized"
-[internet0]: ./extra_traffic_signs/00161.png "Extra Traffic Sign 0"
-[internet1]: ./extra_traffic_signs/00260.png "Extra Traffic Sign 1"
-[internet2]: ./extra_traffic_signs/00315.png "Extra Traffic Sign 2"
-[internet3]: ./extra_traffic_signs/00499.png "Extra Traffic Sign 3"
-[internet4]: ./extra_traffic_signs/00565.png "Extra Traffic Sign 4"
+[internet0]: ./extra_traffic_signs/00000.jpg "Extra Traffic Sign 0"
+[internet1]: ./extra_traffic_signs/00001.jpg "Extra Traffic Sign 1"
+[internet2]: ./extra_traffic_signs/00002.jpg "Extra Traffic Sign 2"
+[internet3]: ./extra_traffic_signs/00003.jpg "Extra Traffic Sign 3"
+[internet4]: ./extra_traffic_signs/00004.jpg "Extra Traffic Sign 4"
 
 ## Rubric Points
 ### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
@@ -109,7 +108,7 @@ My final model consisted of the following layers:
 
 Some different learning rates like 0.001, 0.0001, 0.0005 and 0.01; while 0.01 never converged and 0.0001 took longer,
 0.001 and 0.0005 showed similar convergence time. Then using 100 epochs the convergence behavior for 0.001 was analyzed.
-Wherease the 0.95 mark was reached before the 10th epoch, there was consistently no improvement past the 17th epoch. As
+Whereas the 0.95 mark was reached before the 10th epoch, there was consistently no improvement past the 17th epoch. As
 such 20 epochs were the chosen value. As for the weights in the convolution and fully connected layers, a mean of 0 and
 standard deviation of 0.1 was used while the bias was initialized to 0.
 
@@ -120,23 +119,35 @@ cross entropy calculation was used as the loss function.
 
 My final model results were:
 * training set accuracy of 99.7%
-* validation set accuracy of 96.1%
-* test set accuracy of 96.0%
+* validation set accuracy of 95.9%
+* test set accuracy of 96.6%
 
-If an iterative approach was chosen:
-* What was the first architecture that was tried and why was it chosen?
+An iterative approach was chosen:
+##### What was the first architecture that was tried and why was it chosen?
+
 The LeNet5 from the course was used as a basis since it was mentioned as a good starting point.
-* What were some problems with the initial architecture?
-#TODO
-* How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
-* Which parameters were tuned? How were they adjusted and why?
-* What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
 
-If a well known architecture was chosen:
-* What architecture was chosen?
-* Why did you believe it would be relevant to the traffic sign application?
-* How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
- 
+##### What were some problems with the initial architecture?
+
+The initial architecture used only pooling as a regularization technique which is considered inferior to the dropout
+technique.
+
+##### How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
+
+The addition of one convolutional layer and four regularization droupout layers with two different dropout thresholds (a higher one used for the first two dropouts and a lower one used for the last two) already achieved the target 93% accuracy. However, the removal of the max pooling layer significantly increased the computation time while keeping it didn't have negative implications for the accuracy.
+
+##### Which parameters were tuned? How were they adjusted and why?
+
+* The learning rate was adjusted to guarantee convergence.
+* The batch size eased computational requirements while also affecting accuracy.
+* As mentioned above, the epochs where used to improve the accuracy for each attempt.
+* The number of dropout layers _and_ their rates was used to prevent over/underfitting.
+* The dimensions of the convolutional layers were tweaked as they improve accuracy while
+preventing over/underfitting. Same applies for the fully connected layers.
+
+##### What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
+
+Convolutional layers help with problems where the solution should be position-invariant; as is the case in classifying traffic signs. The dropout layers helped with under/overfitting.
 
 ### Test a Model on New Images
 
@@ -146,7 +157,9 @@ Here are five German traffic signs that I found on the web:
 
 ![alt text][internet0] ![alt text][internet1] ![alt text][internet2] ![alt text][internet3] ![alt text][internet4]
 
-#TODO
+The first and third images are severely under represented in the training set while being presumably different enough to be successfully classified. This is already a foreshadowing of the results that will be presented in the coming sections. The fourth image was unproperly cropped; which could affect its labeling.
+
+Furthermore the second and fifth images are not parallel to the image plane which means their shape is also distorted.
 
 #### 2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
 
@@ -154,33 +167,62 @@ Here are the results of the prediction:
 
 | Image | Prediction |
 |:---------------------:|:---------------------------------------------:|
-| Vehicles over 3.5 metric tons prohibited | Vehicles over 3.5 metric tons prohibited |
-| Ahead only | Ahead only |
-| End of no passing by vehicles over 3.5 metric tons | End of no passing by vehicles over 3.5 metric tons |
-| Priority road | Roundabout mandatory |
-| Slippery Road | Slippery Road |
+| Slippery road | Slippery road |
+| Priority road | Priority road |
+| Bumpy road | Bumpy road |
+| Right of way at next intersection | Priority road |
+| General caution | General caution |
 
-The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This is below the
-accuracy of the test, train and validation sets while still being able to perform somewhat reliably.
+The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. While this is slightly below the validation accuracy, with 135 additional images downloaded from the web the accuracy reaches 94.2%; a much better result.
 
 #### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
 The code for making predictions on my final model is located in the 11th cell of the Ipython notebook.
 
-For the first image, the model is relatively sure that this is a stop sign (probability of 0.6), and the image does contain a stop sign. The top five soft max probabilities were
+Images 1-3 and 5 were correctly predicted with at least 95% probability. The fourth image was mislabeled with a very
+high likelihood (99.81%) while the second highest probability was the correct prediction with a non-negligible 0.18%.
 
-| Probability         	|     Prediction	        					| 
-|:---------------------:|:---------------------------------------------:| 
-| .60         			| Stop sign   									| 
-| .20     				| U-turn 										|
-| .05					| Yield											|
-| .04	      			| Bumpy Road					 				|
-| .01				    | Slippery Road      							|
+![alt text][internet0]
+| n | id | name | probability |
+|:-:|:-:|:-:|:-:|
+| 0 | 23 | Slippery road | 95.5289900302887 |
+| 1 | 19 | Dangerous curve to the left | 4.167603328824043 |
+| 2 | 29 | Bicycles crossing | 0.19897620659321547 |
+| 3 | 30 | Beware of ice/snow | 0.04287060291972011 |
+| 4 | 20 | Dangerous curve to the right | 0.03440383297856897 |
 
+![alt text][internet1]
+| n | id | name | probability |
+|:-:|:-:|:-:|:-:|
+| 0 | 12 | Priority road | 100.0 |
+| 1 | 40 | Roundabout mandatory | 2.9199130092971703e-10 |
+| 2 | 15 | No vehicles | 8.569333393923517e-12 |
+| 3 | 2 | Speed limit (50km/h) | 1.4733165088390396e-13 |
+| 4 | 13 | Yield | 6.617590484212031e-15 |
 
-For the second image ... 
+![alt text][internet2]
+| n | id | name | probability |
+|:-:|:-:|:-:|:-:|
+| 0 | 22 | Bumpy road | 100.0 |
+| 1 | 29 | Bicycles crossing | 2.6676545803513703e-16 |
+| 2 | 25 | Road work | 3.4101047433904215e-18 |
+| 3 | 24 | Road narrows on the right | 3.007628061007955e-18 |
+| 4 | 26 | Traffic signals | 1.1772605730090882e-18 |
 
-### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
-#### 1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
+![alt text][internet3]
+| n | id | name | probability |
+|:-:|:-:|:-:|:-:|
+| 0 | 12 | Priority road | 99.81569647789001 |
+| 1 | 11 | Right-of-way at the next intersection | 0.18348684534430504 |
+| 2 | 25 | Road work | 0.00046538170863641426 |
+| 3 | 10 | No passing for vehicles over 3.5 metric tons | 0.0001663604962232057 |
+| 4 | 30 | Beware of ice/snow | 0.00015407151749968762 |
 
-
+![alt text][internet4]
+| n | id | name | probability |
+|:-:|:-:|:-:|:-:|
+| 0 | 18 | General caution | 99.99997615814209 |
+| 1 | 25 | Road work | 1.3436017809453915e-05 |
+| 2 | 24 | Road narrows on the right | 4.346501469854047e-06 |
+| 3 | 26 | Traffic signals | 1.3973732393424143e-06 |
+| 4 | 31 | Wild animals crossing | 2.745428537287431e-09 |
