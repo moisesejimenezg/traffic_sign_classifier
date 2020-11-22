@@ -110,7 +110,6 @@ training_operation = optimizer.minimize(loss_operation)
 ### Set up accuracy computation
 correct_prediction = tf.equal(tf.argmax(logits, 1), tf.argmax(one_shot_y, 1))
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-session_wrapper = SessionWrapper("./lenet_ba")
 
 def evaluate(X_data, y_data):
     num_examples = len(X_data)
@@ -135,6 +134,8 @@ high_keep_prob_v = 1
 if drop_outs:
     low_keep_prob_v = 0.5
     high_keep_prob_v = 0.7
+
+session_wrapper = SessionWrapper("./lenet_ba")
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
