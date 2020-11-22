@@ -3,7 +3,7 @@ from os import listdir
 from PIL import Image
 import numpy as np
 
-internet = {"labels": [], "images": [], "names": []}
+internet = {"labels": [], "images": [], "file_names": [], "names": []}
 
 valid_images = open("valid_images.txt")
 valid_images = valid_images.read()
@@ -28,7 +28,14 @@ for file_name in files:
         image = np.array(Image.open(full_name))
         if image.shape[0] == 32 and image.shape[1] == 32:
             internet["images"].append(image)
-            internet["names"].append(full_name)
+            internet["file_names"].append(full_name)
 internet["labels"] = ground_truth
+
+signnames = open("signnames.csv")
+signnames = signnames.read()
+signnames = signnames.split("\n")
+signnames = signnames[1:-1]
+signnames = [x.split(",")[1] for x in signnames]
+internet["names"] = signnames
 
 pickle.dump(internet, open("internet.p", "wb"))
