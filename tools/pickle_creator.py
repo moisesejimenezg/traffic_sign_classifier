@@ -23,7 +23,7 @@ ground_truth = [
 files = listdir("extra_traffic_signs")
 files.sort()
 for file_name in files:
-    if ".ppm" in file_name:
+    if ".ppm" in file_name or ".jpg" in file_name:
         full_name = "extra_traffic_signs/" + file_name
         image = np.array(Image.open(full_name))
         if image.shape[0] == 32 and image.shape[1] == 32:
